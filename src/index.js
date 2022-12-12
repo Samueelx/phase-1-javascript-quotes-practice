@@ -15,6 +15,38 @@ const renderQuotes = (quotesObject) => {
     </blockquote>
     `;
     ul.appendChild(li);
+
+    li.querySelector('.btn-danger').addEventListener('click', (event) => {
+        event.preventDefault();
+        deleteQuote(quotesObject.id);
+        li.remove();
+    });
+}
+
+const submitQuote = (quote, author) => {
+    const quoteObject = {
+        quote: quote,
+        author: author
+    };
+
+    fetch(QUOTES_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(quoteObject)
+    }).then(res => res.json())
+    .then((data) => {
+        renderQuotes(data);
+    });
+}
+
+const getInput = () => {
+    const newQuote = document.querySelector('#new-quote');
+    const newAuthor = document.querySelector('#author');
+
+    submitQuote(newQuote.value, newAuthor.value);
 }
 
 const getQuotes = (url) => {
@@ -26,6 +58,21 @@ const getQuotes = (url) => {
     });
 }
 
+const deleteQuote = (id) => {
+    fetch(`${QUOTES_URL}/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    const submitButton = document.querySelector('.btn-primary');
     getQuotes(QUOTES_URL);
+
+    submitButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        getInput();
+    });
 });
