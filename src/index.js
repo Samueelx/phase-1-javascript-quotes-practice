@@ -1,4 +1,5 @@
 const QUOTES_URL = 'http://localhost:3000/quotes';
+const LIKES_URL = 'http://localhost:3000/likes';
 
 const renderQuotes = (quotesObject) => {
     const ul = document.querySelector('#quote-list');
@@ -16,10 +17,19 @@ const renderQuotes = (quotesObject) => {
     `;
     ul.appendChild(li);
 
+    /**Experimental: add the span to the addLike() function call */
+    span = li.querySelector('span');
+
+
+    /**Event listener for deleting a quote */
     li.querySelector('.btn-danger').addEventListener('click', (event) => {
-        event.preventDefault();
         deleteQuote(quotesObject.id);
         li.remove();
+    });
+
+    /**Event listener for adding likes */
+    li.querySelector('.btn-success').addEventListener('click', (event) => {
+        addLike(quotesObject.id, span);
     });
 }
 
@@ -56,6 +66,25 @@ const getQuotes = (url) => {
             renderQuotes(quote);
         });
     });
+}
+
+/**Function that adds likes data to the likes endpoint */
+const addLike = (id, span) => {
+    const likeObject = {
+        quoteId: id
+    };
+
+    fetch(LIKES_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(likeObject)
+    }).then(response => response.json())
+    .then((data) => {
+        span.textContent = data.likes.length;
+    })
 }
 
 const deleteQuote = (id) => {
